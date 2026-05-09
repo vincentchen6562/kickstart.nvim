@@ -667,13 +667,25 @@ do
   --    :Mason
   --
   -- You can press `g?` for help in this menu.
+  --
   local ensure_installed = vim.tbl_keys(servers or {})
+
+  -- Termux-specific config
+  local is_termux = vim.fn.isdirectory("/data/data/com.termux") == 1
+  ---@type table<string, vim.lsp.Config>
+  local termux_servers = {
+    ts_ls = {},
+    pyright = {}
+  }
+  if is_termux then
+    ensure_installed = vim.tbl_keys(termux_servers or {})
+  end
+
   vim.list_extend(ensure_installed, {
-    -- You can add other tools here that you want Mason to install
-  })
+      -- You can add other tools here that you want Mason to install
+    })
 
   require('mason-tool-installer').setup { ensure_installed = ensure_installed }
-
   for name, server in pairs(servers) do
     vim.lsp.config(name, server)
     vim.lsp.enable(name)
